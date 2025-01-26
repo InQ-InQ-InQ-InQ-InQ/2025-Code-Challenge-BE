@@ -2,10 +2,7 @@ package baseball;
 
 import camp.nextstep.edu.missionutils.Console;
 
-import javax.swing.text.ElementIterator;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Application {
     static Scanner scanner = new Scanner(System.in);
@@ -16,25 +13,10 @@ public class Application {
     public static void main(String[] args) {
         // TODO: 프로그램 구현
         while (true) {
-            //정답 배열 생성
-            for (int i = 0; i < 3; i++) {
-                answer[i] = rd.nextInt(9) + 1; //1~9
-                //중복 검증
-                for (int j = 0; j < i; j++) {
-                    if (answer[i] == answer[j]) {
-                        answer[j] = rd.nextInt(9) + 1;
-                    }
-                }
-            }
-            for (int i : answer) {
-                System.out.print(i);
-            }
-            System.out.println();
             //게임 시작
             System.out.print("숫자 야구 게임을 시작합니다.");
-
             start_game();
-            
+
             System.out.println("게임을 새로 시작하려면 1, 종료하려면 2를 입력하세요.");
             int continue_answer = Integer.parseInt(Console.readLine());
             if (continue_answer == 1) continue;
@@ -46,46 +28,69 @@ public class Application {
 
     private static void start_game() {
         while (true) {
-            int strike = 0;
-            int ball = 0;
-
-            System.out.print("\n숫자를 입력해주세요: ");
-            String userInput = Console.readLine();
-            if (userInput.length() != 3) {
-                throw new IllegalArgumentException("숫자 3자리를 입력해야 합니다.");
+            //정답 배열 생성
+            List<Integer> answerNumbers = make_answer();
+            for (Integer i : answerNumbers) {
+                System.out.print(i);
             }
 
+            //볼, 스트라이크 판별
+            while (true) {
+                //숫자 입력받고 list에 저장
+                List<Integer> userNumbers = getNumbers();
+                Result result = verifyNumbers(answerNumbers, userNumbers);
 
-            String array[] = userInput.split("");
-            int[] userInputArray = new int[3];
-
-            for (int i = 0; i < 3; i++) {
-                userInputArray[i] = Integer.parseInt(array[i]);
-            }
-
-            //입력받은 숫자 검증
-            for (int i = 0; i < 3; i++) { //정답
-                for (int j = 0; j < 3; j++) { //유저
-                    if (userInputArray[j] == answer[i]) {
-                        if (j == i) {
-                            strike++; //숫자, 자리 같으면 스트라이크
-                        }
-                        else ball++;
-                    }
+                if (result.ball != 0) System.out.println(result.ball + "볼");
+                if (result.strike == 1 || result.strike == 2) System.out.println(result.strike + "스트라이크");
+                else if (result.strike == 0 && result.ball == 0) {
+                    System.out.println("낫싱");
                 }
+                if (result.strike == 3) {
+                    System.out.println("3개의 숫자를 모두 맞히셨습니다! 게임 종료");
+                    break;
+                } else continue;
             }
 
 
-            if (ball != 0) System.out.print(ball + "볼 ");
-            if (strike != 0) System.out.print(strike + "스트라이크");
-            if (ball == 0 && strike == 0) System.out.print("낫싱");
-
-            //결과
-            if (Arrays.equals(answer, userInputArray)) {
-                System.out.println("\n3개의 숫자를 모두 맞히셨습니다! 게임 종료");
-                break;
-            }
-            else continue;
         }
+    }
+
+    private static List<Integer> make_answer() {
+        List<Integer> answerNumbers = new ArrayList<>();
+        while(answerNumbers.size() < 3) {
+            int number = rd.nextInt(9) + 1; //1~9
+            if (!answerNumbers.contains(number)) {
+                answerNumbers.add(number);
+            }
+        }
+        return answerNumbers;
+    }
+
+    private static Result verifyNumbers(List<Integer> answerNumbers, List<Integer> userNumbers) {
+        int ball = 0;
+        int strike = 0;
+
+        for (int i = 0; i < userNumbers.size(); i++) {
+            if (answerNumbers.contains(userNumbers.get(i))) {
+                if (answerNumbers.get(i) == userNumbers.get(i)) {
+                    strike++;
+                }
+                else ball++;
+            }
+        }
+        return new Result(strike, ball);
+    }
+
+    private static List<Integer> getNumbers() {
+        List<Integer> userInput = new ArrayList<>();
+
+        System.out.print("\n숫자를 입력해주세요: ");
+        String input = Console.readLine();
+
+        for (int i = 0; i < input.length(); i++) {
+            userInput.add(input.charAt(i) - '0');
+        }
+
+        return userInput;
     }
 }
