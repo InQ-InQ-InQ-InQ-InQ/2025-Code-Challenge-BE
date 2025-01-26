@@ -4,35 +4,32 @@ import camp.nextstep.edu.missionutils.Console;
 
 import java.util.*;
 
-public class Application {
-    static Scanner scanner = new Scanner(System.in);
+// M model -> 계산 로직 데이터
+// v View -> 입력 출력
+// C Controller -> 모델 뷰를 합쳐서 관리함
 
-    static int[] answer = new int[3];
-    static Random rd = new Random();
+public class Application {
 
     public static void main(String[] args) {
         // TODO: 프로그램 구현
         while (true) {
             //게임 시작
             System.out.print("숫자 야구 게임을 시작합니다.");
-            start_game();
+            startGame();
 
             System.out.println("게임을 새로 시작하려면 1, 종료하려면 2를 입력하세요.");
-            int continue_answer = Integer.parseInt(Console.readLine());
-            if (continue_answer == 1) continue;
-            else if (continue_answer == 2) {
+            int continueAnswer = Integer.parseInt(Console.readLine());
+            if (continueAnswer == 1) continue;
+            else if (continueAnswer == 2) {
                 break;
             }
         }
     }
 
-    private static void start_game() {
+    private static void startGame() {
         while (true) {
             //정답 배열 생성
-            List<Integer> answerNumbers = make_answer();
-            for (Integer i : answerNumbers) {
-                System.out.print(i);
-            }
+            List<Integer> answerNumbers = makeAnswer();
 
             //볼, 스트라이크 판별
             while (true) {
@@ -40,9 +37,12 @@ public class Application {
                 List<Integer> userNumbers = getNumbers();
                 Result result = verifyNumbers(answerNumbers, userNumbers);
 
-                if (result.ball != 0) System.out.println(result.ball + "볼");
-                if (result.strike == 1 || result.strike == 2) System.out.println(result.strike + "스트라이크");
-                else if (result.strike == 0 && result.ball == 0) {
+                if (result.hasBall()) {
+                    System.out.println(result.ball + "볼");
+                }
+                if (result.strike == 1 || result.strike == 2) {
+                    System.out.println(result.strike + "스트라이크");
+                } else if (result.isNothing()) {
                     System.out.println("낫싱");
                 }
                 if (result.strike == 3) {
@@ -50,19 +50,20 @@ public class Application {
                     break;
                 } else continue;
             }
-
-
         }
     }
 
-    private static List<Integer> make_answer() {
+    private static List<Integer> makeAnswer() {
         List<Integer> answerNumbers = new ArrayList<>();
+        Random random = new Random();
+
         while(answerNumbers.size() < 3) {
-            int number = rd.nextInt(9) + 1; //1~9
+            int number = random.nextInt(9) + 1; //1~9
             if (!answerNumbers.contains(number)) {
                 answerNumbers.add(number);
             }
         }
+
         return answerNumbers;
     }
 
